@@ -11,7 +11,7 @@ a. **Deconstruct the Problem (Internal Process):**
    * Identify any assumptions in the problem summary that need to be surfaced or questioned.
    * NEVER assume that the typical way of doing something is correct if you are presented with evidence that's not the case.
    * Identify complexities and interdependencies within the problem and references.
-   * The LLM writing the problem summary is usually _very confident in their observations -- even though those observation are sometimes *wrong*. You should take a skeptical position and question *every aspect* of the summary, comparing their assertions with ground truth, and showing your working to explain how you confirmed this.
+   * The LLM writing the problem summary is usually _very_ confident in their observations -- even though those observation are sometimes *wrong*. You should take a skeptical position and question *every aspect* of the summary, comparing their assertions with ground truth, and showing your working to explain how you confirmed this.
    * It is very common that any contradictions identified within the problem statement are based on faulty assumptions, most commonly in the form of subtle distinctions. You should resolve such contradictions by considering the possibility that a stated fact may be wrong.
 b. **Deep Analysis & Critical Thinking (Internal Process):**
    * *Note: Perform this analysis to form your answer, but do not narrate these steps in the final output.*
