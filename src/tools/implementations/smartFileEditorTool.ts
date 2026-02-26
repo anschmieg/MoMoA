@@ -30,6 +30,7 @@ import { createTwoFilesPatch } from 'diff';
 
 const filenameStart = `DOC/EDIT{`;
 const filenameEnd = `}\nTO\u005fREPLACE`;
+const fixInstructions = `Please review the tool instructions and follow the syntax rules carefully before trying again. The most common mistake is not surrounding the TO_REPLACE text or the NEW_TEXT in curly braces, make sure you're doing this.`;
 
 /**
  * Implements the Smart File Editor Tool, providing functionality to edit file content
@@ -67,7 +68,7 @@ export const smartFileEditorTool: MultiAgentTool = {
     }
 
     if (!filename || !originalEditRequest)
-      return {result: `Invalid syntax for the ${this.displayName} Tool. Please review the tool instructions and follow the syntax rules carefully before trying again.`};
+      return {result: `Invalid syntax for the ${this.displayName} Tool. ${fixInstructions}`};
       
     const parameterExtractionResult = await extractEditRequestParameters(originalEditRequest);
     const syntaxIssues = (parameterExtractionResult).success ? "--No issues have yet been identified with the request--" : parameterExtractionResult.error;
@@ -381,20 +382,18 @@ export const smartFileEditorTool: MultiAgentTool = {
    */
   async extractParameters(invocation: string, context: MultiAgentToolContext): Promise<ToolParsingResult> {
     if (!invocation ||
-        !invocation.includes("{") || 
-        !invocation.includes("}") || 
         !invocation.includes("TO_REPLACE") || 
         !invocation.includes("NEW_TEXT")) {
       return {
         success: false, 
-        error: `Invalid syntax for the ${this.displayName} Tool. Please review the tool instructions and follow the syntax rules carefully before trying again.`
+        error: `Invalid syntax for the ${this.displayName} Tool. ${fixInstructions}`
       }
     }; 
 
     if (!invocation.includes(filenameEnd)) {
       return {
         success: false,
-        error: `The ${this.displayName} attempt failed because we were not able to determine a filename. Please review the tool instructions and follow the syntax rules carefully before trying again.`,
+        error: `The ${this.displayName} attempt failed because we were not able to determine a filename. Make sure the filename is surrounded by curly brackets.`,
       }
     }
 
