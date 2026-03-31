@@ -19,7 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import * as http from 'http';
 import { Orchestrator } from './momoa_core/orchestrator.js';
 import { Config, DEFAULT_GEMINI_EMBEDDING_MODEL } from './config/config.js';
-import { AuthType } from './services/contentGenerator';
+import { AuthType } from './services/contentGenerator.js';
 import { randomUUID } from 'crypto';
 import { isBinaryFileSync } from 'isbinaryfile';
 import { ServerMode, UserSecrets } from './shared/model.js';
@@ -350,6 +350,7 @@ async function handleInitialRequest(clientUUID: string, requestData: InitialRequ
       saveFiles ?? false,
       secrets,
       requestConfig,
+      'Untitled Session',
       projectSpecification,
       environmentInstructions,
       notWorkingBuild,

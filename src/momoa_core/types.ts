@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { GeminiClient } from '../services/geminiClient.js';
 import { TranscriptManager } from '../services/transcriptManager.js';
 import { UserSecrets } from '../shared/model.js';
@@ -88,8 +89,6 @@ export interface MultiAgentToolContext {
   julesSessionSummaries?: string[];
   julesBranchName?: string | null;
   julesSessionName?: string | undefined;
-  julesEnvSetupPromise?: Promise<boolean>;
-  julesEnvSetupSuccess?: boolean;
   assumptions?: string;
   secrets: UserSecrets;
   projectSpecification?: string;
@@ -98,6 +97,7 @@ export interface MultiAgentToolContext {
   signal?: AbortSignal;
   projectDeadlineMs?: number;
   gracePeriodMs?: number;
+  sessionTitle: string;
 }
 
 export interface FuzzyReplaceResult {
@@ -225,3 +225,34 @@ export interface GeminiClientConfig {
 export interface TranscriptManagerConfig {
   context: InfrastructureContext;
 }
+
+export interface ScreenPreviewURLs {
+  htmlCode?: { downloadUrl?: string };
+  screenshot?: { downloadUrl?: string };
+}
+
+export interface DesignResponseItem {
+  designSystem?: {
+    designSystem?: {
+      theme?: {
+        designMd?: string;
+      };
+    };
+  };
+  design?: {
+    screens?: ScreenPreviewURLs[];
+  };
+  text?: string;
+  suggestion?: string;
+}
+
+export interface ExtractedData {
+  htmlUrls: string[];
+  previewUrls: string[];
+  combinedText: string;
+  designMarkdown: string;
+  hasPreviewUrls: boolean;
+}
+
+export const LARGE_FILE_LIMIT_KB = 100;
+export const MAX_CONTEXT_FILE_SIZE_BYTES = 100 * 1024 * 1024;

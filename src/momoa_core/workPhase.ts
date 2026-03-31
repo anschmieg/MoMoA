@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-import { DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_LITE_MODEL } from "../config/models";
-import { GeminiClient } from "../services/geminiClient";
-import { getAssetString, getExpertPrompt, getWorkPhasePrompt, hasExpertPrompt, replaceRuntimePlaceholders, resolvePlaceholdersFromFiles } from "../services/promptManager";
-import { AddEntryOptions, TranscriptManager } from "../services/transcriptManager";
-import { PROJECT_DIFF_ID } from "../tools/implementations/revertFileTool";
-import { parseToolRequest } from "../tools/multiAgentToolParser";
-import { executeTool, getTool } from "../tools/multiAgentToolRegistry";
-import { generateDiffString } from "../utils/diffGenerator";
-import { getTaskRelevantFileDescriptions } from "../utils/fileAnalysis";
-import { formatExpertList, removeBacktickFences, replaceContentBetweenMarkers, toKebabCase } from "../utils/markdownUtils";
-import { Overseer } from "./overseer";
-import { Expert, MultiAgentToolContext, GuidanceType } from "./types";
-import { getFAQs } from "../utils/faqs";
-import { getFormattedCacheContents } from "../tools/implementations/urlFetchTool";
-import { withDeadline } from "../utils/timeoutHelper";
+import { DEFAULT_GEMINI_FLASH_MODEL, DEFAULT_GEMINI_LITE_MODEL } from "../config/models.js";
+import { GeminiClient } from "../services/geminiClient.js";
+import { getAssetString, getExpertPrompt, getWorkPhasePrompt, hasExpertPrompt, replaceRuntimePlaceholders, resolvePlaceholdersFromFiles } from "../services/promptManager.js";
+import { AddEntryOptions, TranscriptManager } from "../services/transcriptManager.js";
+import { PROJECT_DIFF_ID } from "../tools/implementations/revertFileTool.js";
+import { parseToolRequest } from "../tools/multiAgentToolParser.js";
+import { executeTool, getTool } from "../tools/multiAgentToolRegistry.js";
+import { generateDiffString } from "../utils/diffGenerator.js";
+import { getTaskRelevantFileDescriptions } from "../utils/fileAnalysis.js";
+import { formatExpertList, removeBacktickFences, replaceContentBetweenMarkers, toKebabCase } from "../utils/markdownUtils.js";
+import { Overseer } from "./overseer.js";
+import { Expert, MultiAgentToolContext, GuidanceType } from "./types.js";
+import { getFAQs } from "../utils/faqs.js";
+import { getFormattedCacheContents } from "../tools/implementations/urlFetchTool.js";
+import { withDeadline } from "../utils/timeoutHelper.js";
 
 const NO_RESULT_STRING = 'Sorry, this Work Phase was unable to perform the allocated task.';
 
@@ -510,10 +510,11 @@ ${this.task}
         }
         try {
 
-          const toolPromise = executeTool(toolRequest.toolName, toolRequest.params, this.toolContext);
-          const toolResult = this.toolContext.projectDeadlineMs
-            ? await withDeadline(toolPromise, this.toolContext.projectDeadlineMs, this.signal)
-            : await toolPromise;
+          const toolResult = await withDeadline(
+            executeTool(toolRequest.toolName, toolRequest.params, this.toolContext),
+            this.toolContext.projectDeadlineMs,
+            this.signal
+          );
 
           this.addToEachExpertTranscript('user', toolResult.result, { documentId: toolResult.transcriptReplacementID, replacementIfSuperseded: toolResult.transcriptReplacementString});
           let toolResponseLogString = toolResult.result;

@@ -17,7 +17,7 @@
 import express, { Application } from 'express';
 import http from 'http';
 import process from 'process';
-import { initializeWebSocketServer } from './websocket_server';
+import { initializeWebSocketServer } from './websocket_server.js';
 
 // --- Server Setup ---
 const app: Application = express();

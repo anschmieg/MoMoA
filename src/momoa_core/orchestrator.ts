@@ -17,7 +17,7 @@
 import * as fs from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import * as path from 'node:path';
-import simpleGit, { SimpleGit } from 'simple-git';
+import { SimpleGit, simpleGit } from 'simple-git';
 import {
   DEFAULT_GEMINI_FLASH_MODEL,
   DEFAULT_GEMINI_LITE_MODEL,
@@ -75,6 +75,7 @@ export class Orchestrator {
   private toolContext: MultiAgentToolContext;
   private hitlResolver: ((response: string) => void) | null = null;
   private saveFiles: boolean; 
+  private sessionTitle: string;
   private signal?: AbortSignal;
   private mode?: ServerMode;
   private startTime: number = 0;
@@ -109,6 +110,7 @@ export class Orchestrator {
     saveFiles: boolean,
     private secrets: UserSecrets,
     infrastructureContext: InfrastructureContext, 
+    sessionTitle: string = 'Untitled Session',
     projectSpecification?: string, 
     environmentInstructions?: string,
     notWorkingBuild?: boolean,
@@ -138,6 +140,7 @@ export class Orchestrator {
     this.maxTurns = 20;
     this.signal = signal;
     this.saveFiles = saveFiles;
+    this.sessionTitle = sessionTitle;
 
     this.signal?.addEventListener('abort', () => {
       this.updateLog('Orchestrator received abort signal from user.');
@@ -149,8 +152,8 @@ export class Orchestrator {
 
     this.mode = mode;
 
-    this.maxDurationMs = maxDurationMs;
-    this.gracePeriodMs = gracePeriodMs ?? (5 * 60 * 1000);
+    this.maxDurationMs = maxDurationMs ?? undefined; 
+    this.gracePeriodMs = gracePeriodMs ?? undefined;
 
     this.toolContext = {
       fileMap: this.fileMap,
@@ -178,6 +181,7 @@ export class Orchestrator {
       projectSpecification: this.projectSpecification,
       environmentInstructions: this.environmentInstructions,
       notWorkingBuild: this.notWorkingBuild,
+      sessionTitle: this.sessionTitle,
     };
   }
 
@@ -285,11 +289,13 @@ export class Orchestrator {
   public async run(): Promise<void> {
     this.startTime = Date.now();
 
-    this.toolContext.projectDeadlineMs = this.maxDurationMs ? this.startTime + this.maxDurationMs : undefined;
+    this.toolContext.projectDeadlineMs = this.maxDurationMs ? (this.startTime + (this.maxDurationMs)) : undefined;
     this.toolContext.gracePeriodMs = this.gracePeriodMs;
     this.hasWarnedTimeLow = false;
 
     const sessionTitle = await generateSessionTitle(this.initialPrompt.trim(), this.multiAgentGeminiClient) ?? "New Task";
+    this.sessionTitle = sessionTitle;
+    this.toolContext.sessionTitle = sessionTitle;
     await this.updateProgressLog(`# ${sessionTitle}\n`);
     await this.updateProgressLog("## Agentic Loop Initialization");
 
@@ -314,9 +320,9 @@ export class Orchestrator {
       await this.updateProgressLog(`Initiating Project Overseer with ${OVERSEER_FREQUENCY_MINS} minute frequency.`)
 
       if (this.maxDurationMs)
-        await this.updateProgressLog(`This deployment is limited to ${(this.maxDurationMs / 60 / 1000)} minutes per task session.`)
-
-      await this.updateProgressLog(checkContainerMemory());
+        await this.updateProgressLog(`This deployment is limited to ${(this.maxDurationMs / 60 / 1000)} minutes per task session.`);
+      else 
+        await this.updateProgressLog(`This deployment doesn't have a time limit per task.`);
       
       let { preamble } = await getExpertPrompt('orchestrator');
       preamble = await replaceRuntimePlaceholders(preamble,
@@ -347,10 +353,14 @@ export class Orchestrator {
         await this.updateLog(`# Mode: ${this.mode}`);        
 
       let uploadFilesLog = `Uploaded Files:\n`;
-      if (this.fileMap.size > 0)  
+      if (this.fileMap.size > 0) {
         uploadFilesLog += '* ' + Array.from(this.fileMap.keys()).join('\n* ');
+        uploadFilesLog += "\n";
+      }
       if (this.binaryFileMap.size > 0) 
         uploadFilesLog += '* ' + Array.from(this.binaryFileMap.keys()).join('\n* ')
+
+      uploadFilesLog = uploadFilesLog.trim();
 
       await this.updateLog(uploadFilesLog, false);
 
@@ -756,10 +766,11 @@ ${retrospectiveObject.other_pertinent_notes || '--None--'}`.trim();
           await this.updateProgressLog(`\n### '${tool?.displayName}' Invoked`);
 
           try {
-            const toolPromise = executeTool(toolRequest.toolName, toolRequest.params, this.toolContext);
-            const toolResult = this.toolContext.projectDeadlineMs
-              ? await withDeadline(toolPromise, this.toolContext.projectDeadlineMs, this.signal)
-              : await toolPromise;
+            const toolResult = await withDeadline(
+              executeTool(toolRequest.toolName, toolRequest.params, this.toolContext),
+              this.toolContext.projectDeadlineMs,
+              this.signal
+            );
             
             this.transcriptManager.addEntry('user', toolResult.result, { documentId: toolResult.transcriptReplacementID, replacementIfSuperseded: toolResult.transcriptReplacementString});
             
