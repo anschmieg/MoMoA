@@ -56,6 +56,16 @@ pip install websocket-client
 python3 python_cli.py "Your prompt here" -d ./your-project
 ```
 
+### Adding Support for Jules and Stitch Tools
+
+To enable MoMoA to use the [Stitch](https://stitch.withgoogle.com) and [Jules](https://jules.google.com/) Tools you must sign-up for Jules and / or Stitch, obtain API keys, and update your `.env` file (or environment variables):
+* `JULES_API_KEY` can be obtained from Jules following [these instructions](https://developers.google.com/jules/api).
+* `STITCH_API_KEY` can be obtained from the Stitch [settings page](https://stitch.withgoogle.com/settings).
+
+The Jules API doesn't currently support repo-less tasks, so you must also provide a GitHub access token that has access to a GitHub repository that is connected to Jules, and in which we can create a temporary branch that the Jules Tool will use to provide access to Jules:
+* `GITHUB_TOKEN` can be obtained from [GitHub Developer Settings](https://github.com/settings/tokens).
+* `GITHUB_SCRATCHPAD_REPO` (Eg. `myusername/my-private-jules-scratchpad-repo`).
+
 ### Key Architecture Components
 
 * **The Orchestrator:** Breaks the prompt into sub-tasks and reviews work phase reports.

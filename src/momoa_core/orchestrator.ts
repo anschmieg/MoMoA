@@ -379,7 +379,7 @@ export class Orchestrator {
       const recommendations = await enrichPrompt("prompt-enricher", this.initialPrompt.trim(), this.assumptions, this.projectSpecification ?? "---No specification provided---", this.multiAgentGeminiClient, this.sendMessage, this.initialImage, this.initialImageMimeType);
 
       const dateTimeString = CleanFormattedDateTime(new Date());
-      this.initialPrompt = `${this.initialPrompt.trim()}\n\n${recommendations}\n\nThe current date and time is: ${dateTimeString}`;
+      this.initialPrompt = `${recommendations}\n\nThe current date and time is: ${dateTimeString}`;
 
       await this.updateProgressLog(`\`\`\`\`\n${this.initialPrompt}\n\`\`\`\``);
       await this.updateProgressLog('----\n');

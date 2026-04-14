@@ -29,6 +29,9 @@ import { revertFileTool } from './implementations/revertFileTool.js';
 import { urlFetchTool } from './implementations/urlFetchTool.js';
 import { LintTool } from './implementations/LintTool.js';
 import { factFinderTool } from './implementations/FactFinderTool.js';
+import { julesTool } from './implementations/julesTool.js';
+import { stitchTool } from './implementations/stitchTool.js';
+import { screenCaptureTool } from './implementations/screenCaptureTool.js';
 
 // The state is a module-level constant, making it private to this module.
 const tools = new Map<string, MultiAgentTool>();
@@ -126,4 +129,7 @@ registerTool(revertFileTool);
 registerTool(urlFetchTool);
 registerTool(LintTool);
 registerTool(factFinderTool);
+registerTool(julesTool);
+registerTool(stitchTool);
+registerTool(screenCaptureTool);
 // Future tools will be registered here.
