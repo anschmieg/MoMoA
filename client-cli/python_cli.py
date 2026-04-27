@@ -561,6 +561,10 @@ def main():
 
     args = parser.parse_args()
     
+    # If no directory or files specified, default to current directory
+    if args.directory is None and not args.files:
+        args.directory = os.getcwd()
+    
     # --------------------------------------------------------------------------
     # MODIFIED: Check if --spec and --env arguments are file paths.
     # If they are, read the content from the file.
