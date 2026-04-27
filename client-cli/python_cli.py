@@ -27,7 +27,7 @@ import pathlib
 try:
     from agentignore_rules import evaluate_path
 except ImportError:
-    from .agentignore_rules import evaluate_path # Assuming momoa_client is package root
+    from .agentignore_rules import evaluate_path # Assuming momoa_cli is package root
 
 # Variable to store the number of lines the wrapped question takes
 question_lines_count = None
