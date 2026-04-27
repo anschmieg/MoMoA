@@ -26,7 +26,7 @@ import pathlib
 # Import the necessary function from the agentignore_rules module
 try:
     from agentignore_rules import evaluate_path
-except ImportError:
+except ModuleNotFoundError:
     from .agentignore_rules import evaluate_path # Assuming momoa_cli is package root
 
 # Variable to store the number of lines the wrapped question takes
